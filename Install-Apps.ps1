@@ -306,7 +306,7 @@ Set-Location .\$Version
 
 
 $Unattendedxmluri = "https://raw.githubusercontent.com/Copaco/WVD/main/M365apps4business.xml"
-$Unattendedxml = "M365apps4business.xml"
+$Unattendedxml = ".\M365apps4business.xml"
 Invoke-WebRequest -Uri $Unattendedxmluri -OutFile $Unattendedxml -UseBasicParsing
 
 
