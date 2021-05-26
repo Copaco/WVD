@@ -175,7 +175,7 @@ $AzVersion = (Get-ChildItem "$LocalWVDpath\AzCopy").Name
 Set-location "$LocalWVDpath\AzCopy\$AzVersion"
 
 ###Download and install Software
-
+<#
 #Power BI
 Add-Content -LiteralPath C:\WVDAppInstallation.log "Downloading PowerBI from Storage Account"
 .\azcopy.exe copy $PowerBISAS "$LocalWVDpath\PowerBI\Powerbi.exe"
@@ -193,7 +193,7 @@ catch{
     Add-Content -LiteralPath C:\WVDAppInstallation.log "Unsuccessfully installed PowerBI"
     Add-Content -LiteralPath C:\WVDAppInstallation.log "$PowerBIInstallationOutput = Start-Process -FilePath $Teamsinstaller -ArgumentList $TeamsinstallArguments -Wait -PassThru"
 }
-
+#>
 #########################
 #    FSLogix Install    #
 
