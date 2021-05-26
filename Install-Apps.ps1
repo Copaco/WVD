@@ -80,7 +80,7 @@ $VScodeURI               = 'https://go.microsoft.com/fwlink/?Linkid=852157'
 $TeamsURI                = 'https://teams.microsoft.com/downloads/desktopurl?env=production&plat=windows&arch=x64&managedInstaller=true&download=true'
 $TeamWebSocket           = 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RE4AQBt'
 $OneDriveURI             = 'https://go.microsoft.com/fwlink/?linkid=844652'
-$ProfilePath             = '\\copfslogix.file.core.windows.net\fslogix'
+$ProfilePath             = '\\copfslogixhybrid.file.core.windows.net\hybridfslogix'
 $AzCopyURI               = 'https://aka.ms/downloadazcopy-v10-windows'
 $PowerBISAS              = 'https://copapplications.blob.core.windows.net/powerbi/PBIDesktopSetup_x64.exe?sp=r&st=2021-05-19T08:26:27Z&se=2021-10-22T16:26:27Z&spr=https&sv=2020-02-10&sr=b&sig=7URh%2BKoMTMwYb8fQ4MiWzn7I1RlTuoh5XRxE1D3oYi8%3D'  
 
