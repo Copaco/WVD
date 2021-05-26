@@ -81,6 +81,8 @@ $TeamsURI                = 'https://teams.microsoft.com/downloads/desktopurl?env
 $TeamWebSocket           = 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RE4AQBt'
 $OneDriveURI             = 'https://go.microsoft.com/fwlink/?linkid=844652'
 $ProfilePath             = '\\copfslogix.file.core.windows.net\fslogix'
+$AzCopyURI               = 'https://aka.ms/downloadazcopy-v10-windows'
+$PowerBISAS              = 'https://copapplications.blob.core.windows.net/powerbi/PBIDesktopSetup_x64.exe?sp=r&st=2021-05-19T08:26:27Z&se=2021-10-22T16:26:27Z&spr=https&sv=2020-02-10&sr=b&sig=7URh%2BKoMTMwYb8fQ4MiWzn7I1RlTuoh5XRxE1D3oYi8%3D'  
 
 
 
@@ -138,8 +140,8 @@ else {
 #    Download WVD Componants    #
 #################################
 
-Add-Content -LiteralPath C:\WVDAppInstallation.log "Downloading FSLogix"
-    Invoke-WebRequest -Uri $FSLogixURI -OutFile "$LocalWVDpath$FSInstaller"
+#Add-Content -LiteralPath C:\WVDAppInstallation.log "Downloading FSLogix"
+#    Invoke-WebRequest -Uri $FSLogixURI -OutFile "$LocalWVDpath$FSInstaller"
 
 Add-Content -LiteralPath C:\WVDAppInstallation.log "Downloading NotePad++"
     Invoke-WebRequest -Uri $NotePadURI -OutFile "$LocalWVDpath\notepadplusplus.exe"
@@ -155,11 +157,49 @@ Add-Content -LiteralPath C:\WVDAppInstallation.log "Downloading Teams WebSocket"
 
 Add-Content -LiteralPath C:\WVDAppInstallation.log "Downloading OneDrive"
     Invoke-WebRequest -Uri $OneDriveURI -OutFile "$LocalWVDpath\OneDrive.exe"
+
+Add-Content -LiteralPath C:\WVDAppInstallation.log "Downloading Az Copy"
+    Invoke-WebRequest -Uri $AzCopyURI -OutFile "$LocalWVDpath\AzCopy.zip"
     
+#########################
+#    Extract AZ Copy and Download software #
+#########################
+Add-Content -LiteralPath C:\WVDAppInstallation.log "Az Copy Uitpakken"
+Expand-Archive `
+    -LiteralPath "$LocalWVDpath\AzCopy.zip" `
+    -DestinationPath "$LocalWVDpath\AzCopy" `
+    -Force `
+    -Verbose
+
+$AzVersion = (Get-ChildItem "$LocalWVDpath\AzCopy").Name
+Set-location "$LocalWVDpath\AzCopy\$AzVersion"
+
+###Download and install Software
+
+#Power BI
+Add-Content -LiteralPath C:\WVDAppInstallation.log "Downloading PowerBI from Storage Account"
+.\azcopy.exe copy $PowerBISAS "$LocalWVDpath\PowerBI\Powerbi.exe"
+
+Add-Content -LiteralPath C:\WVDAppInstallation.log "Installing PowerBI"
+
+$PowerBIArugments = '/quiet /norestart ACCEPT_EULA=1'
+$PowerBIInstaller = "$LocalWVDpath\PowerBI\Powerbi.exe"
+
+try{
+    $PowerBIInstallationOutput = Start-Process -FilePath $PowerBIInstaller -ArgumentList $PowerBIArugments -Wait -PassThru
+    Add-Content -LiteralPath C:\WVDAppInstallation.log "Successfully installed PowerBI"
+}
+catch{
+    Add-Content -LiteralPath C:\WVDAppInstallation.log "Unsuccessfully installed PowerBI"
+    Add-Content -LiteralPath C:\WVDAppInstallation.log "$PowerBIInstallationOutput = Start-Process -FilePath $Teamsinstaller -ArgumentList $TeamsinstallArguments -Wait -PassThru"
+}
 
 #########################
 #    FSLogix Install    #
+
+# Fslogix is nu standaard onderdeel van het image
 #########################
+<#
 Add-Content -LiteralPath C:\WVDAppInstallation.log "Unzip FSLogix"
 Expand-Archive `
     -LiteralPath "C:\temp\wvd\$FSInstaller" `
@@ -176,7 +216,7 @@ $fslogix_deploy_status = Start-Process `
     -ArgumentList "/install /quiet /norestart" `
     -Wait `
     -Passthru
-
+#>
 #########################
 #    FSLogix Configuration#
 #########################
@@ -255,7 +295,20 @@ Set-ItemProperty `
     -Value "1" 
 Pop-Location
 
+#########################
+#    Setup hybrid requirements    
+#https://docs.microsoft.com/en-us/mem/intune/fundamentals/windows-virtual-desktop-multi-session#prerequisites#
+#########################
 
+Add-Content -LiteralPath C:\WVDAppInstallation.log "Configure Hybrid Join Requirements"
+Push-Location 
+Set-Location "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Server"
+Set-ItemProperty `
+    -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Server" `
+    -Name "ClientExperienceEnabled" `
+    -Type "DWORD" `
+    -Value "1"
+Pop-Location
 #########################
 #    Install VSCode     #
 #########################
